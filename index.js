@@ -1,25 +1,84 @@
+let timerID = null;
+let matchedCount = 0;
+let flipCount = 0;
+let cardCount = 0; // Make cardCount a global variable
+
+const updateStats = () => {
+	document.getElementById('totalPairs').innerText = 'Total Pairs: ' + cardCount / 2;
+	document.getElementById('foundPairs').innerText = 'Found Pairs: ' + matchedCount;
+	document.getElementById('remainingPairs').innerText = 'Remaining Pairs: ' + (cardCount / 2 - matchedCount);
+	document.getElementById('flipCount').innerText = 'Flip Count: ' + flipCount;
+};
+
+const startTimer = (timeLeft) => { // add a parameter to startTimer
+	document.getElementById('timer').innerText = 'Time: ' + timeLeft;
+
+	timerID = setInterval(() => {
+			timeLeft--;
+			document.getElementById('timer').innerText = 'Time: ' + timeLeft;
+
+			if (timeLeft <= 0) {
+					clearInterval(timerID);
+					alert('Time up! Game over.');
+					// Clear the game board
+					$('#game_grid').empty();
+					// Reset the score
+					document.getElementById('score').innerText = 'Score: 0';
+			}
+	}, 1000);
+};
+
+const resetGame = () => {
+  clearInterval(timerID);
+  matchedCount = 0;
+  flipCount = 0;
+  cardCount = 0;
+  updateStats();
+  $('#game_grid').empty();
+  document.getElementById('score').innerText = 'Score: 0';
+  location.reload(); // 페이지를 새로고침
+};
+
+
 const startGame = () => {
-	let cardCount;
-	const selectedDifficulty = $('#difficultySelect').val();
+	if (timerID) {
+		// If a timer is already running, clear it
+		clearInterval(timerID);
+	}
+
+	$('#startButtonWrapper').addClass('hidden');
+
+	matchedCount = 0; // Reset matched count when game starts
+	flipCount = 0; // Reset flip count when game starts
+
+	let timeLimit; // declare a new variable
 	let columnCount;
+	const selectedDifficulty = $('#difficultySelect').val();
 
 	if (selectedDifficulty === 'easy') {
-		cardCount = 6;
-		columnCount = 3;
+			cardCount = 6;
+			columnCount = 3;
+			timeLimit = 100; // set the time limit for easy mode
 	} else if (selectedDifficulty === 'normal') {
-		cardCount = 12;
-		columnCount = 4;
+			cardCount = 12;
+			columnCount = 4;
+			timeLimit = 200; // set the time limit for normal mode
 	} else if (selectedDifficulty === 'hard') {
-		cardCount = 24;
-		columnCount = 6;
+			cardCount = 24;
+			columnCount = 6;
+			timeLimit = 300; // set the time limit for hard mode
 	}
+
+	startTimer(timeLimit);
+
+	updateStats(); // Call updateStats after defining cardCount
 
 	$('#game_grid').css('grid-template-columns', `repeat(${columnCount}, 1fr)`);
 
 	let randomPokemonIds = [];
 	for (let i = 0; i < cardCount / 2; i++) {
 		const randomId = Math.floor(Math.random() * 810) + 1;
-		randomPokemonIds.push(randomId, randomId);  // Add each ID twice to the array
+		randomPokemonIds.push(randomId, randomId); // Add each ID twice to the array
 	}
 
 	// Shuffle the array
@@ -65,6 +124,8 @@ const startGame = () => {
 	let secondCard = null;
 
 	$('.card').on('click', function () {
+		flipCount++; // Increase flip count when a card is flipped
+		updateStats();
 		const clickedCard = $(this);
 		const frontFace = clickedCard.find('.front_face');
 
@@ -93,8 +154,17 @@ const startGame = () => {
 				firstCard.addClass('matched');
 				secondCard.addClass('matched');
 
-				score++;
-				document.getElementById('score').innerText = 'Score: ' + score;
+				matchedCount++; // Increase matched count when cards match
+				updateStats(); // Update the stats when cards match
+
+				// Check if all cards have been matched
+				if (matchedCount === cardCount / 2) {
+					clearInterval(timerID);
+					// Add a short delay before showing the completion message
+					setTimeout(() => {
+							alert('Congratulations! You completed the game.');
+					}, 500);
+			}
 
 				firstCard = null;
 				secondCard = null;
@@ -106,7 +176,7 @@ const startGame = () => {
 
 					firstCard = null;
 					secondCard = null;
-				}, 1000);
+				}, 800);
 			}
 		}
 	});
@@ -114,6 +184,7 @@ const startGame = () => {
 
 const setup = () => {
 	$('#startButton').on('click', startGame);
+	$('#resetButton').on('click', resetGame);
 };
 
 $(document).ready(setup);
