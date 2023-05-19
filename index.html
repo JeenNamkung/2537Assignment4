@@ -12,28 +12,30 @@
 	</head>
 
 	<body>
-		<div id="difficulty">
-			<label for="difficultySelect">Select Difficulty: </label>
-			<select id="difficultySelect">
-				<option value="easy">Easy</option>
-				<option value="normal">Normal</option>
-				<option value="hard">Hard</option>
-			</select>
-		</div>
-		<div id="startButtonWrapper">
+    <h1>Memory Game</h1>
+  
+    <div id="game_options">
+      <label for="difficultySelect">Difficulty:</label>
+      <select id="difficultySelect">
+        <option value="easy">Easy</option>
+        <option value="normal">Normal</option>
+        <option value="hard">Hard</option>
+      </select>
       <button id="startButton">Start Game</button>
+      <button id="resetButton">Reset Game</button>
     </div>
-    <button id="resetButton">Reset</button>
-
-		<div id="score">Score: 0</div>
-		<p id="timer"></p>
-
-    <!-- New statistic elements -->
-    <div id="totalPairs"></div>
-    <div id="foundPairs"></div>
-    <div id="remainingPairs"></div>
-    <div id="flipCount"></div>
-
-		<div id="game_grid"></div>
+  
+    <div id="game_stats">
+      <p id="totalPairs"></p>
+      <p id="foundPairs"></p>
+      <p id="remainingPairs"></p>
+      <p id="flipCount"></p>
+      <p id="timer"></p>
+      <p id="score"></p>
+    </div>
+  
+    <div id="game_grid"></div>
+  
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 	</body>
 </html>

@@ -2,86 +2,80 @@ let timerID = null;
 let matchedCount = 0;
 let flipCount = 0;
 let cardCount = 0; // Make cardCount a global variable
+let score = 0;
 
 const updateStats = () => {
 	document.getElementById('totalPairs').innerText = 'Total Pairs: ' + cardCount / 2;
 	document.getElementById('foundPairs').innerText = 'Found Pairs: ' + matchedCount;
 	document.getElementById('remainingPairs').innerText = 'Remaining Pairs: ' + (cardCount / 2 - matchedCount);
 	document.getElementById('flipCount').innerText = 'Flip Count: ' + flipCount;
+	document.getElementById('score').innerText = 'Score: ' + score;
 };
 
-const startTimer = (timeLeft) => { // add a parameter to startTimer
-	document.getElementById('timer').innerText = 'Time: ' + timeLeft;
+const startTimer = () => {
+	let startTime = new Date().getTime();
 
 	timerID = setInterval(() => {
-			timeLeft--;
-			document.getElementById('timer').innerText = 'Time: ' + timeLeft;
+		let currentTime = new Date().getTime();
+		let elapsedTime = currentTime - startTime;
 
-			if (timeLeft <= 0) {
-					clearInterval(timerID);
-					alert('Time up! Game over.');
-					// Clear the game board
-					$('#game_grid').empty();
-					// Reset the score
-					document.getElementById('score').innerText = 'Score: 0';
-			}
+		let seconds = Math.floor(elapsedTime / 1000);
+		document.getElementById('timer').innerText = 'Time: ' + seconds;
 	}, 1000);
 };
 
 const resetGame = () => {
-  clearInterval(timerID);
-  matchedCount = 0;
-  flipCount = 0;
-  cardCount = 0;
-  updateStats();
-  $('#game_grid').empty();
-  document.getElementById('score').innerText = 'Score: 0';
-  location.reload(); // 페이지를 새로고침
+	clearInterval(timerID);
+	matchedCount = 0;
+	flipCount = 0;
+	cardCount = 0;
+	score = 0;
+	updateStats();
+	$('#game_grid').empty();
+	location.reload();
 };
 
-
 const startGame = () => {
-	if (timerID) {
-		// If a timer is already running, clear it
-		clearInterval(timerID);
-	}
+  if (timerID) {
+    clearInterval(timerID);
+  }
 
-	$('#startButtonWrapper').addClass('hidden');
+  $('#startButtonWrapper').addClass('hidden');
 
-	matchedCount = 0; // Reset matched count when game starts
-	flipCount = 0; // Reset flip count when game starts
+  matchedCount = 0;
+  flipCount = 0;
+  score = 0;
 
-	let timeLimit; // declare a new variable
+	let timeLimit;
 	let columnCount;
 	const selectedDifficulty = $('#difficultySelect').val();
 
 	if (selectedDifficulty === 'easy') {
-			cardCount = 6;
-			columnCount = 3;
-			timeLimit = 100; // set the time limit for easy mode
+		cardCount = 6;
+		columnCount = 3;
+		timeLimit = 100;
 	} else if (selectedDifficulty === 'normal') {
-			cardCount = 12;
-			columnCount = 4;
-			timeLimit = 200; // set the time limit for normal mode
+		cardCount = 12;
+		columnCount = 4;
+		timeLimit = 200;
 	} else if (selectedDifficulty === 'hard') {
-			cardCount = 24;
-			columnCount = 6;
-			timeLimit = 300; // set the time limit for hard mode
+		cardCount = 24;
+		columnCount = 6;
+		timeLimit = 300;
 	}
 
-	startTimer(timeLimit);
+	startTimer();
 
-	updateStats(); // Call updateStats after defining cardCount
+	updateStats();
 
 	$('#game_grid').css('grid-template-columns', `repeat(${columnCount}, 1fr)`);
 
 	let randomPokemonIds = [];
 	for (let i = 0; i < cardCount / 2; i++) {
 		const randomId = Math.floor(Math.random() * 810) + 1;
-		randomPokemonIds.push(randomId, randomId); // Add each ID twice to the array
+		randomPokemonIds.push(randomId, randomId);
 	}
 
-	// Shuffle the array
 	randomPokemonIds.sort(() => Math.random() - 0.5);
 
 	const cards = $('#game_grid');
@@ -117,69 +111,55 @@ const startGame = () => {
 		counter++;
 	});
 
-	let score = 0;
-	document.getElementById('score').innerText = 'Score: ' + score;
-
 	let firstCard = null;
-	let secondCard = null;
+  let secondCard = null;
 
-	$('.card').on('click', function () {
-		flipCount++; // Increase flip count when a card is flipped
-		updateStats();
-		const clickedCard = $(this);
-		const frontFace = clickedCard.find('.front_face');
+  $('.card').on('click', function () {
+    const clickedCard = $(this);
 
-		// 이미 매칭된 카드인 경우 무시
-		if (clickedCard.hasClass('matched')) {
-			return;
-		}
+    if (clickedCard.hasClass('matched') || clickedCard.hasClass('flip')) {
+      // 이미 매칭된 카드이거나 이미 뒤집힌 카드인 경우에는 무시
+      return;
+    }
 
-		// 같은 카드를 두 번 클릭한 경우 무시
-		if (clickedCard.hasClass('flip')) {
-			return;
-		}
+    flipCount++;
+    updateStats();
+    clickedCard.addClass('flip');
 
-		clickedCard.addClass('flip');
+    if (!firstCard) {
+      firstCard = clickedCard;
+    } else {
+      secondCard = clickedCard;
 
-		if (!firstCard) {
-			// 첫 번째 카드 클릭
-			firstCard = clickedCard;
-		} else {
-			// 두 번째 카드 클릭
-			secondCard = clickedCard;
+      if (firstCard.find('.front_face').attr('src') === secondCard.find('.front_face').attr('src')) {
+        firstCard.addClass('matched');
+        secondCard.addClass('matched');
 
-			// 일치하는 카드인지 확인
-			if (firstCard.find('.front_face').attr('src') === secondCard.find('.front_face').attr('src')) {
-				// 일치하는 경우
-				firstCard.addClass('matched');
-				secondCard.addClass('matched');
+        matchedCount++;
+        score++;
 
-				matchedCount++; // Increase matched count when cards match
-				updateStats(); // Update the stats when cards match
+        updateStats();
 
-				// Check if all cards have been matched
-				if (matchedCount === cardCount / 2) {
-					clearInterval(timerID);
-					// Add a short delay before showing the completion message
-					setTimeout(() => {
-							alert('Congratulations! You completed the game.');
-					}, 500);
-			}
+        if (matchedCount === cardCount / 2) {
+          clearInterval(timerID);
+          setTimeout(() => {
+            alert('Congratulations! You completed the game.');
+          }, 500);
+        }
 
-				firstCard = null;
-				secondCard = null;
-			} else {
-				// 일치하지 않는 경우
-				setTimeout(() => {
-					firstCard.removeClass('flip');
-					secondCard.removeClass('flip');
+        firstCard = null;
+        secondCard = null;
+      } else {
+        setTimeout(() => {
+          firstCard.removeClass('flip');
+          secondCard.removeClass('flip');
 
-					firstCard = null;
-					secondCard = null;
-				}, 800);
-			}
-		}
-	});
+          firstCard = null;
+          secondCard = null;
+        }, 800);
+      }
+    }
+  });
 };
 
 const setup = () => {
