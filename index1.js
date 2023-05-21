@@ -27,10 +27,19 @@ const startTimer = () => {
 
 		if (seconds === Math.floor(timeLimit / 2) && !isChanceTime) { // check if elapsed time is half of the time limit
 			isChanceTime = true;
+
+			// Remember each card's flip status
+			let cardStates = $('.card').map(function() {
+				return $(this).hasClass('flip');
+			}).get();
+
 			$('.card').not('.matched').addClass('flip');
 
 			setTimeout(() => {
-				$('.card').not('.matched').removeClass('flip');
+				$('.card').not('.matched').each(function(index) {
+					// Restore each card's flip status
+					$(this).toggleClass('flip', cardStates[index]);
+				});
 				isChanceTime = false;
 			}, 2000);
 		}
@@ -41,6 +50,7 @@ const startTimer = () => {
 		}
 	}, 1000);
 };
+
 
 
 

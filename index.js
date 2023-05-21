@@ -14,6 +14,21 @@ const updateStats = () => {
 	document.getElementById('score').innerText = 'Score: ' + score;
 };
 
+const startChanceTime = () => {
+	if (!isChanceTime) {
+		isChanceTime = true;
+
+		// Flip all unmatched cards
+		$('.card').not('.matched').addClass('flip');
+
+		setTimeout(() => {
+			// Flip back all unmatched cards
+			$('.card').not('.matched').removeClass('flip');
+			isChanceTime = false;
+		}, 2000);
+	}
+};
+
 const startTimer = () => {
 	let startTime = new Date().getTime();
 
@@ -25,34 +40,18 @@ const startTimer = () => {
 		let remainingTime = timeLimit - seconds; // calculate remaining time
 		document.getElementById('timer').innerText = 'Time: ' + seconds + '/' + timeLimit + ', Remaining: ' + remainingTime;
 
-		if (seconds === Math.floor(timeLimit / 2) && !isChanceTime) { // check if elapsed time is half of the time limit
-			isChanceTime = true;
-
-			// Remember each card's flip status
-			let cardStates = $('.card').map(function() {
-				return $(this).hasClass('flip');
-			}).get();
-
-			$('.card').not('.matched').addClass('flip');
-
-			setTimeout(() => {
-				$('.card').not('.matched').each(function(index) {
-					// Restore each card's flip status
-					$(this).toggleClass('flip', cardStates[index]);
-				});
-				isChanceTime = false;
-			}, 2000);
+		if (seconds === Math.floor(timeLimit / 2)) {
+			// check if elapsed time is half of the time limit
+			document.getElementById('chanceTimeButton').style.display = 'block'; // display the Chance Time button
 		}
 
-		if (seconds >= timeLimit) { // check if time limit has been reached
+		if (seconds >= timeLimit) {
+			// check if time limit has been reached
 			clearInterval(timerID); // stop the timer
 			alert('Time is up! Your score is ' + score + '. If you want to finish the game, please click OK.'); // notify the user that time is up
 		}
 	}, 1000);
 };
-
-
-
 
 const resetGame = () => {
 	clearInterval(timerID);
@@ -79,7 +78,7 @@ const startGame = () => {
 	let columnCount;
 	const selectedDifficulty = $('#difficultySelect').val();
 
-		if (selectedDifficulty === 'easy') {
+	if (selectedDifficulty === 'easy') {
 		cardCount = 6;
 		columnCount = 3;
 		timeLimit = cardCount * 5;
@@ -192,6 +191,8 @@ const startGame = () => {
 const setup = () => {
 	$('#startButton').on('click', startGame);
 	$('#resetButton').on('click', resetGame);
+	$('#chanceTimeButton').on('click', startChanceTime); // Add click event for Chance Time button
+	$('#chanceTimeButton').hide(); // Initially hide the Chance Time button
 };
 
 $(document).ready(setup);
