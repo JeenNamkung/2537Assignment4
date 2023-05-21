@@ -1,8 +1,10 @@
 let timerID = null;
 let matchedCount = 0;
 let flipCount = 0;
-let cardCount = 0; // Make cardCount a global variable
+let cardCount = 0;
 let score = 0;
+let isChanceTime = false;
+let timeLimit;
 
 const updateStats = () => {
 	document.getElementById('totalPairs').innerText = 'Total Pairs: ' + cardCount / 2;
@@ -20,45 +22,68 @@ const startTimer = () => {
 		let elapsedTime = currentTime - startTime;
 
 		let seconds = Math.floor(elapsedTime / 1000);
-		document.getElementById('timer').innerText = 'Time: ' + seconds;
+		let remainingTime = timeLimit - seconds; // calculate remaining time
+		document.getElementById('timer').innerText = 'Time: ' + seconds + '/' + timeLimit + ', Remaining: ' + remainingTime;
+
+		if (seconds === Math.floor(timeLimit / 2) && !isChanceTime) { // check if elapsed time is half of the time limit
+			isChanceTime = true;
+			$('.card').not('.matched').addClass('flip');
+
+			setTimeout(() => {
+				$('.card').not('.matched').removeClass('flip');
+				isChanceTime = false;
+			}, 2000);
+		}
+
+		if (seconds >= timeLimit) { // check if time limit has been reached
+			clearInterval(timerID); // stop the timer
+			alert('Time is up! Your score is ' + score + '. If you want to finish the game, please click OK.'); // notify the user that time is up
+		}
 	}, 1000);
 };
 
+
+
 const resetGame = () => {
+	clearInterval(timerID);
+	matchedCount = 0;
+	flipCount = 0;
+	cardCount = 0;
+	score = 0;
+	updateStats();
+	$('#game_grid').empty();
 	location.reload();
 };
 
 const startGame = () => {
-  if (timerID) {
-    clearInterval(timerID);
-  }
+	if (timerID) {
+		clearInterval(timerID);
+	}
 
-  $('#startButtonWrapper').addClass('hidden');
+	$('#startButtonWrapper').addClass('hidden');
 
-  matchedCount = 0;
-  flipCount = 0;
-  score = 0;
+	matchedCount = 0;
+	flipCount = 0;
+	score = 0;
 
-	let timeLimit;
 	let columnCount;
 	const selectedDifficulty = $('#difficultySelect').val();
 
-	if (selectedDifficulty === 'easy') {
+		if (selectedDifficulty === 'easy') {
 		cardCount = 6;
 		columnCount = 3;
-		timeLimit = 100;
+		timeLimit = cardCount * 5;
 	} else if (selectedDifficulty === 'normal') {
 		cardCount = 12;
 		columnCount = 4;
-		timeLimit = 200;
+		timeLimit = cardCount * 5;
 	} else if (selectedDifficulty === 'hard') {
 		cardCount = 24;
 		columnCount = 6;
-		timeLimit = 300;
+		timeLimit = cardCount * 5;
 	}
 
 	startTimer();
-
 	updateStats();
 
 	$('#game_grid').css('grid-template-columns', `repeat(${columnCount}, 1fr)`);
@@ -105,54 +130,53 @@ const startGame = () => {
 	});
 
 	let firstCard = null;
-  let secondCard = null;
+	let secondCard = null;
 
-  $('.card').on('click', function () {
-    const clickedCard = $(this);
+	$('.card').on('click', function () {
+		const clickedCard = $(this);
 
-    if (clickedCard.hasClass('matched') || clickedCard.hasClass('flip')) {
-      // 이미 매칭된 카드이거나 이미 뒤집힌 카드인 경우에는 무시
-      return;
-    }
+		if (clickedCard.hasClass('matched') || clickedCard.hasClass('flip')) {
+			return;
+		}
 
-    flipCount++;
-    updateStats();
-    clickedCard.addClass('flip');
+		flipCount++;
+		updateStats();
+		clickedCard.addClass('flip');
 
-    if (!firstCard) {
-      firstCard = clickedCard;
-    } else {
-      secondCard = clickedCard;
+		if (!firstCard) {
+			firstCard = clickedCard;
+		} else {
+			secondCard = clickedCard;
 
-      if (firstCard.find('.front_face').attr('src') === secondCard.find('.front_face').attr('src')) {
-        firstCard.addClass('matched');
-        secondCard.addClass('matched');
+			if (firstCard.find('.front_face').attr('src') === secondCard.find('.front_face').attr('src')) {
+				firstCard.addClass('matched');
+				secondCard.addClass('matched');
 
-        matchedCount++;
-        score++;
+				matchedCount++;
+				score++;
 
-        updateStats();
+				updateStats();
 
-        if (matchedCount === cardCount / 2) {
-          clearInterval(timerID);
-          setTimeout(() => {
-            alert('Congratulations! You completed the game.');
-          }, 500);
-        }
+				if (matchedCount === cardCount / 2) {
+					clearInterval(timerID);
+					setTimeout(() => {
+						alert('Congratulations! You completed the game.');
+					}, 500);
+				}
 
-        firstCard = null;
-        secondCard = null;
-      } else {
-        setTimeout(() => {
-          firstCard.removeClass('flip');
-          secondCard.removeClass('flip');
+				firstCard = null;
+				secondCard = null;
+			} else {
+				setTimeout(() => {
+					firstCard.removeClass('flip');
+					secondCard.removeClass('flip');
 
-          firstCard = null;
-          secondCard = null;
-        }, 800);
-      }
-    }
-  });
+					firstCard = null;
+					secondCard = null;
+				}, 800);
+			}
+		}
+	});
 };
 
 const setup = () => {
