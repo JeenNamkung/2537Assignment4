@@ -18,14 +18,12 @@ const startChanceTime = () => {
 	if (!isChanceTime) {
 		isChanceTime = true;
 
-		// Flip all unmatched cards
 		$('.card').not('.matched').addClass('flip');
 
 		setTimeout(() => {
-			// Flip back all unmatched cards
 			$('.card').not('.matched').removeClass('flip');
 			isChanceTime = false;
-		}, 2000);
+		}, 1000);
 	}
 };
 
@@ -37,18 +35,16 @@ const startTimer = () => {
 		let elapsedTime = currentTime - startTime;
 
 		let seconds = Math.floor(elapsedTime / 1000);
-		let remainingTime = timeLimit - seconds; // calculate remaining time
+		let remainingTime = timeLimit - seconds;
 		document.getElementById('timer').innerText = 'Time: ' + seconds + '/' + timeLimit + ', Remaining: ' + remainingTime;
 
 		if (seconds === Math.floor(timeLimit / 2)) {
-			// check if elapsed time is half of the time limit
-			document.getElementById('chanceTimeButton').style.display = 'block'; // display the Chance Time button
+			document.getElementById('chanceTimeButton').style.display = 'block';
 		}
 
 		if (seconds >= timeLimit) {
-			// check if time limit has been reached
-			clearInterval(timerID); // stop the timer
-			alert('Time is up! Your score is ' + score + '. If you want to finish the game, please click OK.'); // notify the user that time is up
+			clearInterval(timerID);
+			alert('Time is up! Your score is ' + score + '. If you want to finish the game, please click OK.');
 		}
 	}, 1000);
 };
@@ -191,8 +187,8 @@ const startGame = () => {
 const setup = () => {
 	$('#startButton').on('click', startGame);
 	$('#resetButton').on('click', resetGame);
-	$('#chanceTimeButton').on('click', startChanceTime); // Add click event for Chance Time button
-	$('#chanceTimeButton').hide(); // Initially hide the Chance Time button
+	$('#chanceTimeButton').on('click', startChanceTime);
+	$('#chanceTimeButton').hide();
 };
 
 $(document).ready(setup);
