@@ -6,39 +6,48 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Document</title>
 		<link rel="stylesheet" href="index.css" />
+		<!-- import bootstrap css -->
+		<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+		<link rel="stylesheet" href="index.css" />
 		<!-- import jQuery -->
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		<!-- import bootstrap js -->
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 		<script src="index.js"></script>
 	</head>
 
-	<body class="light-theme">
-		<h1>Memory Game</h1>
+	<body>
+		<div class="container">
+			<h1 class="display-4">Memory Game</h1>
 
-		<div id="game_options">
-			<label for="difficultySelect">Difficulty:</label>
-			<select id="difficultySelect">
-				<option value="easy">Easy</option>
-				<option value="normal">Normal</option>
-				<option value="hard">Hard</option>
-			</select>
-			<button id="startButton">Start Game</button>
-			<button id="resetButton">Reset Game</button>
+			<div id="game_options">
+				<label for="difficultySelect">Difficulty:</label>
+				<select id="difficultySelect">
+					<option value="easy">Easy</option>
+					<option value="normal">Normal</option>
+					<option value="hard">Hard</option>
+				</select>
+				<button id="startButton">Start Game</button>
+				<button id="resetButton">Reset Game</button>
+			</div>
+
+			<div id="game_stats">
+				<p id="totalPairs"></p>
+				<p id="foundPairs"></p>
+				<p id="remainingPairs"></p>
+				<p id="flipCount"></p>
+				<p id="timer"></p>
+				<p id="score"></p>
+				<button id="chanceTimeButton">Chance Time</button>
+			</div>
+
+			<div id="game_grid"></div>
+
+			<div id="themeButtons" class="d-flex justify-content-center btn-group">
+				<button id="lightThemeButton">Light Theme</button>
+				<button id="darkThemeButton">Dark Theme</button>
+			</div>
 		</div>
-
-		<div id="game_stats">
-			<p id="totalPairs"></p>
-			<p id="foundPairs"></p>
-			<p id="remainingPairs"></p>
-			<p id="flipCount"></p>
-			<p id="timer"></p>
-			<p id="score"></p>
-			<button id="chanceTimeButton">Chance Time</button>
-		</div>
-
-		<div id="game_grid"></div>
-
-		<button id="lightThemeButton">Light Theme</button>
-		<button id="darkThemeButton">Dark Theme</button>
 
 		<script>
 			document.getElementById('lightThemeButton').onclick = function () {
