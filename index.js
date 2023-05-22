@@ -23,6 +23,7 @@ const startChanceTime = () => {
 		setTimeout(() => {
 			$('.card').not('.matched').removeClass('flip');
 			isChanceTime = false;
+			document.getElementById('chanceTimeButton').style.display = 'none';
 		}, 1000);
 	}
 };
